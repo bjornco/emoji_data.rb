@@ -89,6 +89,30 @@ describe EmojiData do
     end
   end
 
+  describe ".gsub" do
+    before(:all) do
+      @exact_results   = EmojiData.gsub("🚀") { |m| ":#{m.short_name}:" }
+      @multi_results   = EmojiData.gsub("flying on my 🚀 to visit the 👾 people.") { |m| ":#{m.short_name}:" }
+      @variant_results = EmojiData.gsub("\u{0023}\u{FE0F}\u{20E3}") { |m| ":#{m.short_name}:" }
+      @variant_multi   = EmojiData.gsub("first a \u{0023}\u{FE0F}\u{20E3} then a 🚀") { |m| ":#{m.short_name}:" }
+    end
+    it "should replace the proper EmojiChar object from a single string char" do
+      @exact_results.should be_kind_of(String)
+      @exact_results.should eq(':rocket:')
+    end
+    it "should replace the proper EmojiChar object from a variant encoded char" do
+      @variant_results.should be_kind_of(String)
+      @variant_results.should eq(':hash:')
+    end
+    it "should replace multiple emojis from within a string" do
+      @multi_results.should be_kind_of(String)
+      @multi_results.should eq('flying on my :rocket: to visit the :space_invader: people.')
+    end
+    it "should replace multiple matches in the proper order for variant encodings" do
+      @variant_multi.should be_kind_of(String)
+      @variant_multi.should eq('first a :hash: then a :rocket:')
+    end
+  end
   describe ".find_by_str - DEPRECATED" do
     it "should maintain compatibility with old method name for .scan" do
       EmojiData.find_by_str("\u{0023}\u{FE0F}\u{20E3}").should eq(EmojiData.scan("\u{0023}\u{FE0F}\u{20E3}"))

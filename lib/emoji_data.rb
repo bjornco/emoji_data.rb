@@ -153,6 +153,19 @@ module EmojiData
     matches.map { |m| EmojiData.from_unified(EmojiData.char_to_unified(m)) }
   end
 
+  # Substitutes all encoded emoji characters contained within a string.
+  #
+  # @param str [String] the target string to search and replace
+  # @return [String] a copy of the target string with all emoji characters
+  #    replaced with the values returned by block for each match.
+  #
+  # @example
+  #   >> EmojiData.gsub("flying on my 🚀 to visit the 👾 people.") { |m| ":#{m.short_name }:" }
+  #   => "flying on my :rocket: to visit the :space_invader: people."
+  def self.gsub(str, &block)
+    str.gsub(FBS_REGEXP) { |m| yield EmojiData.from_unified(EmojiData.char_to_unified(m)) }
+  end
+
   # Finds any `EmojiChar` that contains given string in its official name.
   #
   # @param name [String]
